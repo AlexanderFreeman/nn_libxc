@@ -24,21 +24,19 @@
 #define XC_DIMENSIONS 3
 #endif
 
-float fc1_W[1000][2], fc2_W[500][1001], fcout_W[1][501];
+//float fc1_W[1000][2], fc2_W[500][1001], fcout_W[1][501];
 
-float ** dot_product(float ** array1, float ** array2, int m, int n, int p, int q)
+float ** dot_product(float ** array1, float ** array2, int m, int n, int q)
 {
 	float ** multiply = malloc(m*sizeof(float *));
 	int i, c, d, k;
 	for(i=0; i< m; i++) multiply[i] = malloc(q*sizeof(float));
-	int sum = 0;
 	for (c = 0; c < m; c++) {
 	  for (d = 0; d < q; d++) {
-		for (k = 0; k < p; k++) {
-		  sum = sum + array1[c][k]*array2[k][d];
+		multiply[c][d] = 0;
+		for (k = 0; k < n; k++) {
+		  multiply[c][d] += array1[c][k]*array2[k][d];
 		}
-		multiply[c][d] = sum;
-		sum = 0;
 	  }
 	}
 	return multiply;
@@ -79,10 +77,10 @@ float ** preprocess_input(float ** array, int m)
 {
 	float ** result = malloc((m+1)*sizeof(float *));
 	int i, c, d;
-	for(i=0; i < 1; i++) result[i] = malloc(sizeof(float));
+	for(i=0; i < (m+1); i++) result[i] = (float *)malloc(sizeof(float));
 	for (c = 1; c < (m+1); c++) {
 		for( d = 0 ; d < 1 ; d++ ) {
-			result[c][d] = array[c][d];
+			result[c][d] = array[c-1][d];
 		}
 	}
 	result[0][0] = 1;
@@ -95,57 +93,36 @@ float ** lda_function(float ** inp, float ** W1, float ** W2, float ** Wout)
 {
 	// W1, W2, Wout are already transposed for speed up calculations
 	float ** input_preprocessed = preprocess_input(inp, 1);
-	float ** part1 = dot_product(W1, input_preprocessed, 1000, 2, 2, 1);
+	float ** part1 = dot_product(W1, input_preprocessed, 1000, 2, 1);
 	float ** part1_act = relu(part1, 1000, 1);
 	float ** part1_preprocessed = preprocess_input(part1_act, 1000);
-	float ** part2 = dot_product(W2, part1_preprocessed, 500, 1001, 1001, 1);
+	float ** part2 = dot_product(W2, part1_preprocessed, 500, 1001, 1);
 	float ** part2_act = relu(part2, 500, 1);
 	float ** part2_preprocessed = preprocess_input(part2_act, 500);
-	float ** out_part = dot_product(Wout, part2_preprocessed, 1, 501, 501, 1);
+	float ** out_part = dot_product(Wout, part2_preprocessed, 1, 501, 1);
 	return out_part;
 }
 
-void read_W1(int m, int n)
+
+float ** read_weights(char * filename, int m, int n)
 {
 	FILE* f;
-	int ii, jj;
-	//float ** result = malloc(m*sizeof(float *));
-	//for(i=0; i< m; i++) result[i] = malloc(n*sizeof(float));
-	f = fopen("fc1_W.txt", "r");
+	int ii, jj, i;
+	float ** result = malloc(m*sizeof(float *));
+	for(i=0; i< m; i++) result[i] = malloc(n*sizeof(float));
+	f = fopen(filename, "r");
 	for(jj=0; jj<m; jj++) {
 		for(ii=0; ii<n; ii++) {
-			fscanf(f, "%lf", &fc1_W[jj][ii]);
+			fscanf(f, "%e", &result[jj][ii]);
 		}
 	}
+	fclose(f);
+	return result;
 }
 
-void read_W2(int m, int n)
-{
-	FILE* f;
-	int ii, jj;
-	//float ** result = malloc(m*sizeof(float *));
-	//for(i=0; i< m; i++) result[i] = malloc(n*sizeof(float));
-	f = fopen("fc2_W.txt", "r");
-	for(jj=0; jj<m; jj++) {
-		for(ii=0; ii<n; ii++) {
-			fscanf(f, "%lf", &fc2_W[jj][ii]);
-		}
-	}
-}
 
-void read_Wout(int m, int n)
-{
-	FILE* f;
-	int ii, jj;
-	//float ** result = malloc(m*sizeof(float *));
-	//for(i=0; i< m; i++) result[i] = malloc(n*sizeof(float));
-	f = fopen("fcout_W.txt", "r");
-	for(jj=0; jj<m; jj++) {
-		for(ii=0; ii<n; ii++) {
-			fscanf(f, "%lf", &fcout_W[jj][ii]);
-		}
-	}
-}
+
+
 
 
 
@@ -178,8 +155,15 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
   const double cnst_rs = RS_FACTOR;
 # endif
 
+
   /* Initialize memory */
   memset(&r, 0, sizeof(r));
+  
+  // load weights matrices
+  
+  float ** fc1_W = read_weights("fc1_W.txt", 1000, 2);
+  float ** fc2_W = read_weights("fc2_W.txt", 500, 1001);
+  float ** fcout_W = read_weights("fcout_W.txt", 1, 501);
 
   r.order = -1;
   if(zk     != NULL) r.order = 0;
@@ -187,7 +171,7 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
   if(v2rho2 != NULL) r.order = 2;
   if(v3rho3 != NULL) r.order = 3;
   if(r.order < 0) return;
-
+/*
   for(ip = 0; ip < np; ip++){
     xc_rho2dzeta(p->nspin, rho, &dens, &r.z);
 
@@ -212,6 +196,37 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
 	vrho[0] = vrho[0] - (r.z - 1.0)*r.dfdz;
       }
     }
+*/
+
+	for(ip = 0; ip < np; ip++){
+		xc_rho2dzeta(p->nspin, rho, &dens, &r.z);
+		
+		if(dens < p->dens_threshold) goto end_ip_loop;
+		
+		r.rs = cnst_rs*pow(dens, -1.0/XC_DIMENSIONS);
+		
+		func(p, &r);
+		
+		if(zk != NULL && (p->info->flags & XC_FLAGS_HAVE_EXC))
+		*zk = r.f;
+		
+		if(r.order < 1) goto end_ip_loop;
+		
+		drs = -r.rs/(XC_DIMENSIONS*dens);
+		
+		if(vrho != NULL && (p->info->flags & XC_FLAGS_HAVE_VXC)){
+			int i;
+			float ** input = malloc(1*sizeof(float *));
+			for(i=0; i< 1; i++) input[i] = malloc(1*sizeof(float));
+			input[0][0] = (float)rho[0];
+			float ** output = lda_function(input, fc1_W, fc2_W, fcout_W);
+			vrho[0] = (double)output[0][0];
+			
+			if(p->nspin == XC_POLARIZED){
+				vrho[1] = vrho[0] - (r.z + 1.0)*r.dfdz;
+				vrho[0] = vrho[0] - (r.z - 1.0)*r.dfdz;
+			}
+		}
   
     if(r.order < 2) goto end_ip_loop;
     
