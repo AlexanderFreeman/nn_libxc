@@ -10,10 +10,42 @@
 
 #define XC_LDA_XC_NN   220   /* LDA NN XC Functional */
 
+typedef struct{
+  double alpha;       /* parameters for LDA XC NN energy */
+  double gamma[2];
+  double beta1[2];
+  double beta2[2];
+  double a[2], b[2], c[2], d[2];
+} lda_xc_nn_params;
+
+static lda_xc_nn_params params_values = {
+  1.0,
+  {-0.1423, -0.0843},   
+  { 1.0529,  1.3981}, 
+  { 0.3334,  0.2611}, 
+  { 0.0311,  0.01555},
+  {-0.048,  -0.0269},   
+  { 0.0020191519406228,  0.00069255121311694},
+  {-0.0116320663789130, -0.00480126353790614}
+};
+
+static void 
+lda_xc_nn_init(xc_func_type *p)
+{
+  lda_xc_nn_params *params;
+
+  assert(p != NULL && p->params == NULL);
+  p->params = malloc(sizeof(lda_xc_nn_params));
+  params = (lda_xc_nn_params *) (p->params);
+
+  memcpy(params, &params_values, sizeof(lda_xc_nn_params));
+}
+
 #include "maple2c/lda_xc_nn.c"
 
 #define func maple2c_func
 #include "work_lda_nn.c"
+
 
 const xc_func_info_type xc_func_info_lda_xc_nn = {
   XC_LDA_XC_NN,
@@ -24,6 +56,6 @@ const xc_func_info_type xc_func_info_lda_xc_nn = {
   XC_FLAGS_3D | XC_FLAGS_HAVE_VXC | XC_FLAGS_HAVE_EXC,
   1e-24,
   0, NULL, NULL,
-  NULL, NULL, 
+  lda_xc_nn_init, NULL, 
   work_lda_nn, NULL, NULL
 };

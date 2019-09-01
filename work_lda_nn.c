@@ -218,7 +218,7 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
 			int i;
 			float ** input = malloc(1*sizeof(float *));
 			for(i=0; i< 1; i++) input[i] = malloc(1*sizeof(float));
-			input[0][0] = (float)rho[0];
+			input[0][0] = (float)log10(rho[0]);
 			float ** output = lda_function(input, fc1_W, fc2_W, fcout_W);
 			vrho[0] = (double)output[0][0];
 			
