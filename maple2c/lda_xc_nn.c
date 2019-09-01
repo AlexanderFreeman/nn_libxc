@@ -12,74 +12,110 @@
 */
 
 static void
-func0(const xc_func_type *p, xc_lda_work_t *r)
+func0_lda_x(const xc_func_type *p, xc_lda_work_t *r)
 {
-  double t1, t2, t3, t6, t7, t8, t9, t10;
-  double t11, t12, t13, t14, t15, t16, t17, t20;
-  double t21, t22, t26, t30, t31, t35, t36, t38;
-  double t42, t46, t47, t53, t59, t60, t65, t66;
-  double t73, t78, t79, t84, t87, t95, t96, t100;
-  double t118, t120, t121, t127, t130;
+  double t1, t2, t4, t5, t7, t8, t9, t10;
+  double t11, t16, t25;
 
+  lda_xc_nn_params *params;
 
-  t1 = POW_1_3(0.3e1);
+  assert(p->params != NULL);
+  params = (lda_xc_nn_params * )(p->params);
+
+  t1 = M_CBRT3;
   t2 = t1 * t1;
-  t3 = POW_1_3(0.4e1);
-  t6 = POW_1_3(0.1e1 / 0.31415926535897932385e1);
-  t7 = t6 * t6;
-  t8 = t2 * t3 * t7;
-  t9 = POW_1_3(0.2e1);
+  t4 = M_CBRT4;
+  t5 = params->alpha * t2 * t4;
+  t7 = cbrt(0.1e1 / 0.31415926535897932385e1);
+  t8 = t7 * t7;
+  t9 = M_CBRT2;
   t10 = t9 * t9;
-  t11 = 0.1e1 / r->rs;
-  t12 = t10 * t11;
-  t13 = POW_1_3(0.9e1);
-  t14 = t13 * t13;
-  t15 = t14 * t3;
-  t16 = r->rs * r->rs;
-  t17 = 0.1e1 / t16;
-  t20 = 0.1e1 + 0.28556429993539872704e-4 * t15 * t17;
-  t21 = sqrt(t20);
-  t22 = t21 * t14;
-  t26 = t3 * t3;
-  t30 = log(0.26719108327908265315e-2 * t13 * t26 * t11 + sqrt(POW_2(0.26719108327908265315e-2 * t13 * t26 * t11) + 0.1e1));
-  t31 = t30 * t13;
-  t35 = 0.10396221848752237744e2 * t22 * t3 * r->rs - 0.97273285855626056438e3 * t31 * t26 * t16;
-  t36 = t35 * t35;
-  t38 = 0.1e1 - 0.15e1 * t36;
-  r->f = -0.18750000000000000000e0 * t8 * t12 * t38;
+  t11 = t8 * t10;
+  r->f = -0.18750000000000000000e0 * t5 * t11 / r->rs;
 
   if(r->order < 1) return;
 
-  t42 = t10 * t17;
-  t46 = 0.1e1 / t21;
-  t47 = t46 * t13;
-  t53 = t46 * t14;
-  t59 = -0.26719108327908265315e-2 * t47 * t26 * t17 + 0.10396221848752237744e2 * t22 * t3 + 0.10396221848752237744e2 * t53 * t3 - 0.19454657171125211288e4 * t31 * t26 * r->rs;
-  t60 = t35 * t59;
-  r->dfdrs = 0.18750000000000000000e0 * t8 * t42 * t38 + 0.56250000000000000000e0 * t8 * t12 * t60;
+  t16 = r->rs * r->rs;
+  r->dfdrs = 0.18750000000000000000e0 * t5 * t11 / t16;
 
   if(r->order < 2) return;
 
-  t65 = 0.1e1 / t16 / r->rs;
-  t66 = t10 * t65;
-  t73 = t59 * t59;
-  t78 = 0.1e1 / t21 / t20;
-  t79 = t16 * t16;
-  t84 = t26 * t65;
-  t87 = t78 * t13;
-  t95 = -0.27468084472405941020e-5 * t78 / t79 / r->rs + 0.26719108327908265315e-2 * t47 * t84 + 0.26719108327908265315e-2 * t87 * t84 + 0.20792443697504475488e2 * t53 * t3 * t11 - 0.19454657171125211288e4 * t31 * t26;
-  t96 = t35 * t95;
-  r->d2fdrs2 = -0.37500000000000000000e0 * t8 * t66 * t38 - 0.11250000000000000000e1 * t8 * t42 * t60 + 0.56250000000000000000e0 * t8 * t12 * t73 + 0.56250000000000000000e0 * t8 * t12 * t96;
+  r->d2fdrs2 = -0.37500000000000000000e0 * t5 * t11 / t16 / r->rs;
 
   if(r->order < 3) return;
 
-  t100 = 0.1e1 / t79;
-  t118 = t20 * t20;
-  t120 = 0.1e1 / t21 / t118;
-  t121 = t79 * t79;
-  t127 = 0.1e1 / t79 / t16;
-  t130 = t26 * t100;
-  r->d3fdrs3 = 0.11250000000000000000e1 * t8 * t10 * t100 * t38 + 0.33750000000000000000e1 * t8 * t66 * t60 - 0.16875000000000000000e1 * t8 * t42 * t73 - 0.16875000000000000000e1 * t8 * t42 * t96 + 0.16875000000000000000e1 * t8 * t12 * t59 * t95 + 0.56250000000000000000e0 * t8 * t12 * t35 * (-0.23531712938786995922e-9 * t120 / t121 * t15 + 0.16480850683443564612e-4 * t78 * t127 - 0.80157324983724795945e-2 * t47 * t130 + 0.82404253417217823056e-5 * t120 * t127 - 0.26719108327908265315e-2 * t87 * t130);
+  t25 = t16 * t16;
+  r->d3fdrs3 = 0.11250000000000000000e1 * t5 * t11 / t25;
+
+  if(r->order < 4) return;
+
+
+}
+
+static void
+func0_lda_c_pz_mod(const xc_func_type *p, xc_lda_work_t *r)
+{
+  double t1, t2, t3, t5, t7, t9, t10, t11;
+  double t13, t14, t15, t19, t20, t22, t23, t25;
+  double t27, t29, t33, t36, t38, t43, t44, t52;
+  double t53, t60, t62, t66, t68, t76, t77, t78;
+  double t92, t109, t111, t116, t142;
+
+  lda_xc_nn_params *params;
+
+  assert(p->params != NULL);
+  params = (lda_xc_nn_params * )(p->params);
+
+  t1 = params->gamma[0];
+  t2 = params->beta1[0];
+  t3 = sqrt(r->rs);
+  t5 = params->beta2[0];
+  t7 = t5 * r->rs + t2 * t3 + 0.1e1;
+  t9 = t1 / t7;
+  t10 = r->rs - 0.1e1;
+  t11 = Heaviside(t10);
+  t13 = params->c[0];
+  t14 = t13 * r->rs;
+  t15 = log(r->rs);
+  t19 = params->a[0];
+  t20 = t19 * t15;
+  t22 = params->d[0];
+  t23 = t22 * r->rs;
+  t25 = params->b[0];
+  r->f += -t14 * t15 * t11 - t20 * t11 - t23 * t11 - t25 * t11 + t9 * t11 + t14 * t15 + t20 + t23 + t25; // ADD energy in order to combine energy from two functionals
+
+  if(r->order < 1) return;
+
+  t27 = t7 * t7;
+  t29 = t1 / t27;
+  t33 = t2 / t3 / 0.2e1 + t5;
+  t36 = 0.0;
+  t38 = t13 * t15;
+  t43 = 0.1e1 / r->rs;
+  t44 = t19 * t43;
+  r->dfdrs = -t29 * t11 * t33 - t14 * t15 * t36 - t13 * t11 - t22 * t11 - t38 * t11 - t44 * t11 - t20 * t36 - t23 * t36 - t25 * t36 + t9 * t36 + t13 + t22 + t38 + t44;
+
+  if(r->order < 2) return;
+
+  t52 = t1 / t27 / t7;
+  t53 = t33 * t33;
+  t60 = t11 * t2;
+  t62 = 0.1e1 / t3 / r->rs;
+  t66 = 0.0;
+  t68 = t13 * t43;
+  t76 = r->rs * r->rs;
+  t77 = 0.1e1 / t76;
+  t78 = t19 * t77;
+  r->d2fdrs2 = 0.2e1 * t52 * t11 * t53 - 0.2e1 * t29 * t36 * t33 + t29 * t60 * t62 / 0.4e1 + t9 * t66 - t68 * t11 - 0.2e1 * t38 * t36 - 0.2e1 * t13 * t36 - t14 * t15 * t66 + t68 + t78 * t11 - 0.2e1 * t44 * t36 - t20 * t66 - t78 - 0.2e1 * t22 * t36 - t23 * t66 - t25 * t66;
+
+  if(r->order < 3) return;
+
+  t92 = t27 * t27;
+  t109 = t13 * t77;
+  t111 = 0.0;
+  t116 = t19 / t76 / r->rs;
+  t142 = -0.3e1 * t38 * t66 + 0.3e1 * t78 * t36 - 0.3e1 * t44 * t66 - t20 * t111 - t23 * t111 - 0.3e1 * t13 * t66 - t109 + 0.2e1 * t116 - 0.3e1 * t22 * t66 - t25 * t111 - 0.3e1 / 0.8e1 * t29 * t60 / t3 / t76;
+  r->d3fdrs3 = t142 - 0.3e1 / 0.2e1 * t52 * t11 * t33 * t2 * t62 - 0.6e1 * t1 / t92 * t11 * t53 * t33 + 0.3e1 / 0.4e1 * t29 * t36 * t2 * t62 + 0.6e1 * t52 * t36 * t53 - 0.3e1 * t29 * t66 * t33 + t109 * t11 - t14 * t15 * t111 - 0.2e1 * t116 * t11 + t9 * t111 - 0.3e1 * t68 * t36;
 
   if(r->order < 4) return;
 
@@ -190,10 +226,13 @@ func1(const xc_func_type *p, xc_lda_work_t *r)
 void 
 xc_lda_xc_nn_func(const xc_func_type *p, xc_lda_work_t *r)
 {
-  if(p->nspin == XC_UNPOLARIZED)
-    func0(p, r);
-  else
+  if(p->nspin == XC_UNPOLARIZED) {
+    func0_lda_x(p, r);
+	func0_lda_c_pz_mod(p, r);
+  }
+  else {
     func1(p, r);
+  }
 }
 
 #define maple2c_order 3
