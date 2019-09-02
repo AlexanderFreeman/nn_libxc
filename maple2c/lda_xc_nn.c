@@ -36,16 +36,16 @@ func0_lda_x(const xc_func_type *p, xc_lda_work_t *r)
   if(r->order < 1) return;
 
   t16 = r->rs * r->rs;
-  r->dfdrs = 0.18750000000000000000e0 * t5 * t11 / t16;
+  r->dfdrs = 0;
 
   if(r->order < 2) return;
 
-  r->d2fdrs2 = -0.37500000000000000000e0 * t5 * t11 / t16 / r->rs;
+  r->d2fdrs2 = 0;
 
   if(r->order < 3) return;
 
   t25 = t16 * t16;
-  r->d3fdrs3 = 0.11250000000000000000e1 * t5 * t11 / t25;
+  r->d3fdrs3 = 0;
 
   if(r->order < 4) return;
 
@@ -93,7 +93,7 @@ func0_lda_c_pz_mod(const xc_func_type *p, xc_lda_work_t *r)
   t38 = t13 * t15;
   t43 = 0.1e1 / r->rs;
   t44 = t19 * t43;
-  r->dfdrs = -t29 * t11 * t33 - t14 * t15 * t36 - t13 * t11 - t22 * t11 - t38 * t11 - t44 * t11 - t20 * t36 - t23 * t36 - t25 * t36 + t9 * t36 + t13 + t22 + t38 + t44;
+  r->dfdrs = 0;
 
   if(r->order < 2) return;
 
@@ -106,7 +106,7 @@ func0_lda_c_pz_mod(const xc_func_type *p, xc_lda_work_t *r)
   t76 = r->rs * r->rs;
   t77 = 0.1e1 / t76;
   t78 = t19 * t77;
-  r->d2fdrs2 = 0.2e1 * t52 * t11 * t53 - 0.2e1 * t29 * t36 * t33 + t29 * t60 * t62 / 0.4e1 + t9 * t66 - t68 * t11 - 0.2e1 * t38 * t36 - 0.2e1 * t13 * t36 - t14 * t15 * t66 + t68 + t78 * t11 - 0.2e1 * t44 * t36 - t20 * t66 - t78 - 0.2e1 * t22 * t36 - t23 * t66 - t25 * t66;
+  r->d2fdrs2 = 0;
 
   if(r->order < 3) return;
 
@@ -115,7 +115,7 @@ func0_lda_c_pz_mod(const xc_func_type *p, xc_lda_work_t *r)
   t111 = 0.0;
   t116 = t19 / t76 / r->rs;
   t142 = -0.3e1 * t38 * t66 + 0.3e1 * t78 * t36 - 0.3e1 * t44 * t66 - t20 * t111 - t23 * t111 - 0.3e1 * t13 * t66 - t109 + 0.2e1 * t116 - 0.3e1 * t22 * t66 - t25 * t111 - 0.3e1 / 0.8e1 * t29 * t60 / t3 / t76;
-  r->d3fdrs3 = t142 - 0.3e1 / 0.2e1 * t52 * t11 * t33 * t2 * t62 - 0.6e1 * t1 / t92 * t11 * t53 * t33 + 0.3e1 / 0.4e1 * t29 * t36 * t2 * t62 + 0.6e1 * t52 * t36 * t53 - 0.3e1 * t29 * t66 * t33 + t109 * t11 - t14 * t15 * t111 - 0.2e1 * t116 * t11 + t9 * t111 - 0.3e1 * t68 * t36;
+  r->d3fdrs3 = 0;
 
   if(r->order < 4) return;
 
