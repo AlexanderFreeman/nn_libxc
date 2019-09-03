@@ -86,6 +86,16 @@ float ** preprocess_input(float ** array, int m)
 	result[0][0] = 1;
 	return result;	
 }
+
+void free_memory_pointers(float ** pointer, int m)
+{
+	int i;
+	for (i=0; i<m; i++) {
+		free(pointer[i]);
+	}
+	free(pointer);
+}
+	
 				
 
 
@@ -100,6 +110,13 @@ float ** lda_function(float ** inp, float ** W1, float ** W2, float ** Wout)
 	float ** part2_act = relu(part2, 500, 1);
 	float ** part2_preprocessed = preprocess_input(part2_act, 500);
 	float ** out_part = dot_product(Wout, part2_preprocessed, 1, 501, 1);
+	free_memory_pointers(input_preprocessed, 2);
+	free_memory_pointers(part1, 1000);
+	free_memory_pointers(part1_act, 1000);
+	free_memory_pointers(part1_preprocessed, 1001);
+	free_memory_pointers(part2, 500);
+	free_memory_pointers(part2_act, 500);
+	free_memory_pointers(part2_preprocessed, 501);
 	return out_part;
 }
 
@@ -161,9 +178,19 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
   
   // load weights matrices
   
-  float ** fc1_W = read_weights("fc1_W.txt", 1000, 2);
-  float ** fc2_W = read_weights("fc2_W.txt", 500, 1001);
-  float ** fcout_W = read_weights("fcout_W.txt", 1, 501);
+  static float ** fc1_W = NULL;
+  static float ** fc2_W = NULL;
+  static float ** fcout_W = NULL;
+  
+  if(fc1_W == NULL) {
+	fc1_W = read_weights("fc1_W.txt", 1000, 2);
+  }
+  if(fc2_W == NULL) {
+	fc2_W = read_weights("fc2_W.txt", 500, 1001);
+  }
+  if(fcout_W == NULL) {
+	fcout_W = read_weights("fcout_W.txt", 1, 501);
+  }
 
   r.order = -1;
   if(zk     != NULL) r.order = 0;
@@ -171,6 +198,11 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
   if(v2rho2 != NULL) r.order = 2;
   if(v3rho3 != NULL) r.order = 3;
   if(r.order < 0) return;
+  
+  if(p->nspin == XC_POLARIZED) {
+	fprintf(stderr, "Functional LDA XC NN does not support spin-polarized calculations\n");
+	exit(1);
+  }
 /*
   for(ip = 0; ip < np; ip++){
     xc_rho2dzeta(p->nspin, rho, &dens, &r.z);
@@ -221,6 +253,7 @@ work_lda_nn(const xc_func_type *p, int np, const double *rho,
 			input[0][0] = (float)log10(rho[0]);
 			float ** output = lda_function(input, fc1_W, fc2_W, fcout_W);
 			vrho[0] = (double)output[0][0];
+			free_memory_pointers(output, 1);
 			
 			if(p->nspin == XC_POLARIZED){
 				vrho[1] = vrho[0] - (r.z + 1.0)*r.dfdz;
